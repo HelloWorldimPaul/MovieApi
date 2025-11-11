@@ -1,0 +1,13 @@
+Spring:
+  datasource:
+    username: root
+    password: 1234
+    url: jdbc:mysql://localhost:8080/movies
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
