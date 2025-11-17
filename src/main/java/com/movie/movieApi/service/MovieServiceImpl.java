@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,7 +41,6 @@ public class MovieServiceImpl implements MovieService {
         // chatgpt bug fix movieDto.setPoster(uploadedFileName);
         movieDto.setPosterUrl(uploadedFileName);
 
-
         // chatgpt bug fix Set<String> cast = movieDto.getMovieCast() != null ? movieDto.getMovieCast() : new HashSet<>();
 
         // map dto to Movie object
@@ -60,7 +60,6 @@ public class MovieServiceImpl implements MovieService {
         // generate the posterUrl
         String postUrl = baseUrl + "/file/" + uploadedFileName;
 
-
         // map Movie object to DTO object and return it
         MovieDto responseDto = new MovieDto(
                 savedMovie.getMovieId(),
@@ -73,17 +72,60 @@ public class MovieServiceImpl implements MovieService {
                 postUrl
         );
 
-
         return responseDto;
     }
 
     @Override
     public MovieDto getMovie(Integer movieId) {
-        return null;
+        // check the data in DB and if exists, fetch the data of given ID
+        Movie movie = movieRepository.findById(movieId).orElseThrow(
+                () -> new RuntimeException("Movie not found"));
+
+        // generate posterUrl
+        String postUrl = baseUrl + "/file/" + movie.getPoster();
+
+        // map to MovieDto object and return it
+        MovieDto responseDto = new MovieDto(
+                movie.getMovieId(),
+                movie.getTitle(),
+                movie.getDirector(),
+                movie.getStudio(),
+                movie.getMovieCast(),
+                movie.getReleaseYear(),
+                movie.getPoster(),
+                postUrl
+        );
+
+        return responseDto;
     }
 
     @Override
     public List<MovieDto> getMovies() {
-        return List.of();
+        // fetch all data from DB
+        List<Movie> movies = movieRepository.findAll();
+
+        List<MovieDto> responseDtos = new ArrayList<>();
+
+        // iterate thorugh the list, generate posterUrl for each movie obj,
+        // and map to MovieDto obj
+
+        for(Movie movie : movies) {
+
+            String postUrl = baseUrl + "/file/" + movie.getPoster();
+            MovieDto responseDto = new MovieDto(
+                    movie.getMovieId(),
+                    movie.getTitle(),
+                    movie.getDirector(),
+                    movie.getStudio(),
+                    movie.getMovieCast(),
+                    movie.getReleaseYear(),
+                    movie.getPoster(),
+                    postUrl
+            );
+            responseDtos.add(responseDto);
+
+        }
+
+        return responseDtos;
     }
 }
